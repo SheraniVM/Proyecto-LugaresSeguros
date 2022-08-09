@@ -1,10 +1,14 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework import status
 from places.models import Place
 from places.serializers import PlaceSerializer
 
 class PlaceView(APIView):
+
+    parser_classes = (MultiPartParser, FormParser)
+
     def get(self, request):
 
         '''QuerySet -> Resultado de una Query. Lista de objetos.'''
@@ -14,12 +18,22 @@ class PlaceView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
-
+        '''print(request.data)
+        try:
+            file = request.data['image']
+            #if image exists save it in "file"
+            request.data['image'] = file #save file for serializer to use
+        except KeyError:
+            file = None
+            #if image doesn't exist save it as null
+            #in model we added not null atribute, remember that and we use a default'''
+        
         serializer = PlaceSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-    
+
+
 class PlaceSingleView(APIView):
     '''def put(self, request, id):
         place = Place.objects.get(id=id)
